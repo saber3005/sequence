@@ -205,11 +205,23 @@ class Sequence extends IteratorIterator implements IterationFunctions, Recursive
      * Group A Sequence based upon the result of $fnMapValueToGroup($value, $key) and return the result as a Sequence
      *
      * @param $fnMapValueToGroup($value, $key) -- return the field name to group the values under.
-     * @param null|int|array $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
+     * @param array $init -- The array into which values are grouped
      * @return static
      */
-    public function groupBy($fnMapValueToGroup, $keys = null) {
-        return static::make(IterationTraits::groupBy($this, $fnMapValueToGroup, $keys));
+    public function groupBy($fnMapValueToGroup, $init = array()) {
+        return static::make(IterationTraits::groupBy($this, $fnMapValueToGroup, $init));
+    }
+
+    /**
+     * Group A Sequence based upon the result of $fnMapValueToGroup($value, $key) and return the result as a Sequence
+     *      Provides a helper to generate the initialization array
+     *
+     * @param $fnMapValueToGroup($value, $key) -- return the field name to group the values under.
+     * @param null|int|array $keys -- Defines the init array. @see IterationTraits::initKeysForGroupBy()
+     * @return static
+     */
+    public function groupByInitWithKeys($fnMapValueToGroup, $keys = null) {
+        return static::make(IterationTraits::groupByInitWithKeys($this, $fnMapValueToGroup, $keys));
     }
 
     /**

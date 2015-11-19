@@ -226,11 +226,10 @@ class IterationTraits {
      *
      * @param Iterator $iterator
      * @param callable $fnToGroup
-     * @param null|int|array $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
+     * @param array $init -- The array into which values are grouped
      * @return Sequence
      */
-    public static function groupBy(Iterator $iterator, $fnToGroup, $keys = null) {
-        $init = self::initKeysForGroupBy($keys);
+    public static function groupBy(Iterator $iterator, $fnToGroup, $init = array()) {
         return self::wrapFunctionIntoSequenceOnDemand(function() use ($iterator, $fnToGroup, $init) {
             return Sequence::make($iterator)
                 ->reduceToSequence($init, function ($collection, $value, $key) use ($fnToGroup) {
@@ -238,6 +237,20 @@ class IterationTraits {
                     return $collection;
                 });
         });
+    }
+
+    /**
+     * Group all the values into an array and return the result as a Sequence.
+     *      Provides a helper to generate the initialization array
+     *
+     * @param Iterator $iterator
+     * @param callable $fnToGroup
+     * @param null|int|array $keys -- Defines the init array. @see IterationTraits::initKeysForGroupBy()
+     * @return Sequence
+     */
+    public static function groupByInitWithKeys(Iterator $iterator, $fnToGroup, $keys = null)
+    {
+        return self::groupBy($iterator, $fnToGroup, self::initKeysForGroupBy($keys));
     }
 
     /**
@@ -253,15 +266,17 @@ class IterationTraits {
      */
     protected static function initKeysForGroupBy($keys = null)
     {
-        if (is_null($keys)) {
-            return array();
-        }
-
         if (is_numeric($keys)) {
             $keys = range(0, $keys-1);
         }
-        return Sequence::make($keys)
-            ->map(function() { return array(); }, FnGen::fnMapToKey())
-            ->to_a();
+        if (is_array($keys)) {
+            return Sequence::make($keys)
+                ->map(function () {
+                    return array();
+                }, FnGen::fnMapToKey())
+                ->toArray();
+        }
+
+        return array();
     }
 }
