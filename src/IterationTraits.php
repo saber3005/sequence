@@ -226,7 +226,7 @@ class IterationTraits {
      *
      * @param Iterator $iterator
      * @param callable $fnToGroup
-     * @param null|int|array $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
+     * @param null|int|array|callable $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
      * @return Sequence
      */
     public static function groupBy(Iterator $iterator, $fnToGroup, $keys = null) {
@@ -244,24 +244,31 @@ class IterationTraits {
      * Initializes an array of arrays keyed based on the input. The behavior depends on the input type, as follows:
      *
      * If $keys is...
-     *  null  -> empty array; no nested arrays (default)
-     *  int   -> indexed array with length = $keys and indices 0 to $keys-1
-     *  array -> associative array keyed by the values of $keys
+     *  null     -> empty array; no nested arrays (default)
+     *  int      -> indexed array with length = $keys and indices 0 to $keys-1
+     *  array    -> associative array keyed by the values of $keys
+     *  callable -> the return value of the callable (anything; potentially dangerous)
      *
      * @param null|int|array $keys
      * @return array
      */
     protected static function initKeysForGroupBy($keys = null)
     {
-        if (is_null($keys)) {
-            return array();
+        if (is_callable($keys)) {
+            return call_user_func($keys);
         }
 
         if (is_numeric($keys)) {
             $keys = range(0, $keys-1);
         }
-        return Sequence::make($keys)
-            ->map(function() { return array(); }, FnGen::fnMapToKey())
-            ->to_a();
+        if (is_array($keys)) {
+            return Sequence::make($keys)
+                ->map(function () {
+                    return array();
+                }, FnGen::fnMapToKey())
+                ->toArray();
+        }
+
+        return array();
     }
 }

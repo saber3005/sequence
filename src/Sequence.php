@@ -205,7 +205,7 @@ class Sequence extends IteratorIterator implements IterationFunctions, Recursive
      * Group A Sequence based upon the result of $fnMapValueToGroup($value, $key) and return the result as a Sequence
      *
      * @param $fnMapValueToGroup($value, $key) -- return the field name to group the values under.
-     * @param null|int|array $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
+     * @param null|int|array|callable $keys -- Defines the array which values are grouped into. @see IterationTraits::initKeysForGroupBy()
      * @return static
      */
     public function groupBy($fnMapValueToGroup, $keys = null) {
